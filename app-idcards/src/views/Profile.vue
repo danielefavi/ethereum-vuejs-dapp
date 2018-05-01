@@ -178,7 +178,6 @@
                     }
 
                     // if the user not registered the user will be redirected to the Register page
-                    // TODO: remember to restore here
                     else this.$router.push("register")
                 })
             }
