@@ -18,9 +18,9 @@ The **smart contract** is designed to give to the user the **control of his own 
 - Metamask: not mandatory but better if you want to insert more than one card
 
 # Quick Installation
-1) Download the project and decompress it into the folder **~/ethereumVue** (or wherever you want).
+1) Download the project and decompress it into the folder **~/ethereum-vuejs-dapp** (or wherever you want).
 2) Start ganache (or your private blockchain).
-3) Open the terminal (if you are using Windows you **must use the Power Shell**) in the folder **~/ethereumVue** and run the command:
+3) Open the terminal (if you are using Windows you **must use the Power Shell**) in the folder **~/ethereum-vuejs-dapp** and run the command:
 ```sh
 $ truffle console --network ganache
 ```
@@ -28,8 +28,8 @@ $ truffle console --network ganache
 ```sh
 $ migrate --reset --compile-all
 ```
-5) If the migration was successful, copy the content of the file **~/ethereumVue/build/contracts/IdentityCards.json** into **~/ethereumVue/app-idcards/src/assets/IdentityCardsContract.json**
-6) Open another terminal in the folder ~/ethereumVue/app-idcard and run the command:
+5) If the migration was successful, copy the content of the file **~/ethereum-vuejs-dapp/build/contracts/IdentityCards.json** into **~/ethereum-vuejs-dapp/app-idcards/src/assets/IdentityCardsContract.json**
+6) Open another terminal in the folder **~/ethereum-vuejs-dapp/app-idcard** and run the command:
 ```sh
 $ npm install
 ```
@@ -39,10 +39,10 @@ $ npm run dev
 ```
 If everything went fine you should see this message:
 ```sh
-Your application is running here: http://localhost:8081
+Your application is running here: http://localhost:8080
 ```
-8) Open the browser and go to http://localhost:8081 to test the DApp!
+8) Open the browser and go to http://localhost:8080 to test the DApp!
 
-**NOTE:** if you want to try to add more cards you have to install metamask in your browser, then import the accounts into metamask and finally change account on metamask in order to register new identity cards. 
+**NOTE:** if you want to try to add more identity cards you have to install metamask in your browser, then import the accounts into metamask and finally change account on metamask in order to register new identity cards. 
 
 Visit [DanieleFavi.com](https://www.danielefavi.com/) for more info.

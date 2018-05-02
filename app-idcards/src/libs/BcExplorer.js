@@ -33,8 +33,8 @@ class BcExplorer {
 
             else {
                 // set the provider you want from Web3.providers
-                var provider = new Web3.providers.HttpProvider("http://localhost:8545")
-                // var provider = new Web3.providers.HttpProvider("http://localhost:7545")
+                var provider = new Web3.providers.HttpProvider("http://127.0.0.1:7545")
+                // var provider = new Web3.providers.HttpProvider("http://localhost:8545")
                 // var provider = new new Web3.providers.HttpProvider('http://192.168.20.152:8545')
                 // reject( new Error('BcExplorer error: impossible to connect.') );
 
