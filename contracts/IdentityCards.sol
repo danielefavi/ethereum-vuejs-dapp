@@ -33,7 +33,6 @@ contract IdentityCards {
 
 
 
-
     /**
      * Constructor function
      */
@@ -54,7 +53,7 @@ contract IdentityCards {
      * @param userName 		The name that will appear on the card
      * @param cardNumber	The identity card number
      */
-    function registerUser(string userName, bytes32 cardNumber) public 
+    function registerUser(string userName, bytes32 cardNumber) public
 	returns(uint)
     {
     	return addCard(msg.sender, userName, cardNumber);
@@ -95,11 +94,10 @@ contract IdentityCards {
 
 
 
-
     /**
      * Update the identity card of the caller of this method.
      * Note: the user can modify only his own ID card.
-     * 
+     *
      * @param newUserName		The new name that will appear on the identity card
      * @param newCardNumber		The new user's identity card number
      */
@@ -122,10 +120,9 @@ contract IdentityCards {
 
 
 
-
     /**
      * Get the user's card information by card ID.
-     * 
+     *
      * @param id 	The ID of the identity card stored on the blockchain
      */
 	function getCardById(uint id) public view
@@ -137,7 +134,7 @@ contract IdentityCards {
 		uint,
 		uint
 	) {
-		// checking if the 
+		// checking if the ID of the card is valid
 		require( (id > 0) || (id <= idCards.length) );
 
 		IdCard memory i = idCards[id];
@@ -190,6 +187,5 @@ contract IdentityCards {
     {
         return idCards.length;
     }
-
 
 }
