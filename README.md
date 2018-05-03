@@ -1,21 +1,20 @@
 # Ethereum and VueJS DApp
-**Build your decentralized application with Ethereum blockchain and Vue JS**
 
 This is a simple decentralized application built using **Ethereum** blockchain and **Vue JS** for the front-end. This DApp example let the users store their name and their identity card number on the blockchain. 
 
 ![N|Solid](https://www.danielefavi.com/wp-content/uploads/2018/05/ethereum_vue_dapp_idcards_list.png)
 
 # Brief description
-The DApp allow users to register their identity cards (owner name and card number) in the blockchain. The user’s identity card is associated with an account address.
+The DApp allow users to register their identity card details (owner name and card number) on the blockchain. The user’s identity card is associated with an account address.
 
-The owner of the identity card is the only one that can modify its own data. This will give you a technical explanation of what it means when the user is on control of its own data (just like Facebook… sarcasm!).
-The **smart contract** is designed to give to the user the **control of his own data** and not even the creator of the smart contract can edit someone else data. 
+The owner of the identity card is the only person who can modify his own data. This will give you a technical explanation of what it means when the user is in control of his own data (just like Facebook… sarcasm!).
+The **smart contract** is designed to give the user the **control of his own information** and not even the creator of the smart contract can control any data. 
 
 # Prerequisite
 - NPM version 5.8.0
 - TRUFFLE verson 4.1.5
 - Ganache or your private network
-- Metamask: not mandatory but better if you want to insert more than one card
+- Metamask: not mandatory but better if you want to insert more than one card number
 
 # Quick Installation
 1) Download the project and decompress it into the folder **~/ethereum-vuejs-dapp** (or wherever you want).
@@ -26,7 +25,7 @@ $ truffle console --network ganache
 ```
 4) If ganache is running you should be inside the truffle console; now run the following command in the truffle console:
 ```sh
-$ migrate --reset --compile-all
+> migrate --reset --compile-all
 ```
 5) If the migration was successful, copy the content of the file **~/ethereum-vuejs-dapp/build/contracts/IdentityCards.json** into **~/ethereum-vuejs-dapp/app-idcards/src/assets/IdentityCardsContract.json**
 6) Open another terminal in the folder **~/ethereum-vuejs-dapp/app-idcard** and run the command:
@@ -41,8 +40,8 @@ If everything went fine you should see this message:
 ```sh
 Your application is running here: http://localhost:8080
 ```
-8) Open the browser and go to http://localhost:8080 to test the DApp!
+8) Open the browser and go to URL above to try the DApp!
 
-**NOTE:** if you want to try to add more identity cards you have to install metamask in your browser, then import the accounts into metamask and finally change account on metamask in order to register new identity cards. 
+**NOTE:** if you want to try to add more card numbers you have to install metamask in your browser, then import the accounts into metamask and finally change account on metamask in order to register new identity cards.
 
-Visit [DanieleFavi.com](https://www.danielefavi.com/) for more info.
+Visit [DanieleFavi.com](https://www.danielefavi.com/create-your-blockchain-dapp-with-ethereum-and-vuejs/) for more info.
