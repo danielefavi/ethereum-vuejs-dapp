@@ -25,11 +25,11 @@ contract IdentityCards {
 
 
 
-	// Modifier: check if the caller of the smart contract has registered his identity card.
-	modifier checkSenderIsRegistered {
-		require(isRegistered());
-		_;
-	}
+    // Modifier: check if the caller of the smart contract has registered his identity card.
+    modifier checkSenderIsRegistered {
+    	require(isRegistered());
+    	_;
+    }
 
 
 
@@ -54,7 +54,7 @@ contract IdentityCards {
      * @param cardNumber	The identity card number
      */
     function registerUser(string userName, bytes32 cardNumber) public
-	returns(uint)
+    returns(uint)
     {
     	return addCard(msg.sender, userName, cardNumber);
     }
@@ -69,27 +69,27 @@ contract IdentityCards {
      * @param cardNumber	Number of the user's cidentity card
      */
     function addCard(address wAddr, string userName, bytes32 cardNumber) private
-	returns(uint)
+    returns(uint)
     {
-		uint userCardId = usersIdCards[wAddr];
+        uint userCardId = usersIdCards[wAddr];
 
-		// user' card ID must not exist
-		require (userCardId == 0);
+        // user' card ID must not exist
+        require (userCardId == 0);
 
-		usersIdCards[wAddr] = idCards.length;
-		uint newUserCardId = idCards.length++;
+        usersIdCards[wAddr] = idCards.length;
+        uint newUserCardId = idCards.length++;
 
-		idCards[newUserCardId] = IdCard({
-			name: userName,
-			cardNumber: cardNumber,
-			walletAddress: wAddr,
-			createdAt: now,
-			updatedAt: now
-		});
+        idCards[newUserCardId] = IdCard({
+        	name: userName,
+        	cardNumber: cardNumber,
+        	walletAddress: wAddr,
+        	createdAt: now,
+        	updatedAt: now
+        });
 
-		emit newCardRegistered(newUserCardId);
+        emit newCardRegistered(newUserCardId);
 
-		return newUserCardId;
+        return newUserCardId;
     }
 
 
@@ -102,20 +102,20 @@ contract IdentityCards {
      * @param newCardNumber		The new user's identity card number
      */
     function updateCard(string newUserName, bytes32 newCardNumber) checkSenderIsRegistered public
-	returns(uint)
+    returns(uint)
     {
     	// An user can modify only his own ID card.
-		uint userId = usersIdCards[msg.sender];
+    	uint userId = usersIdCards[msg.sender];
 
-		IdCard storage idCard = idCards[userId];
+    	IdCard storage idCard = idCards[userId];
 
-		idCard.name = newUserName;
-		idCard.cardNumber = newCardNumber;
-		idCard.updatedAt = now;
+    	idCard.name = newUserName;
+    	idCard.cardNumber = newCardNumber;
+    	idCard.updatedAt = now;
 
-		emit userUpdateEvent(userId);
+    	emit userUpdateEvent(userId);
 
-		return userId;
+    	return userId;
     }
 
 
@@ -125,58 +125,58 @@ contract IdentityCards {
      *
      * @param id 	The ID of the identity card stored on the blockchain
      */
-	function getCardById(uint id) public view
-	returns(
-		uint,
-		string,
-		bytes32,
-		address,
-		uint,
-		uint
-	) {
-		// checking if the ID of the card is valid
-		require( (id > 0) || (id <= idCards.length) );
+    function getCardById(uint id) public view
+    returns(
+    	uint,
+    	string,
+    	bytes32,
+    	address,
+    	uint,
+    	uint
+    ) {
+    	// checking if the ID of the card is valid
+    	require( (id > 0) || (id <= idCards.length) );
 
-		IdCard memory i = idCards[id];
+    	IdCard memory i = idCards[id];
 
-		return (
-			id,
-			i.name,
-			i.cardNumber,
-			i.walletAddress,
-			i.createdAt,
-			i.updatedAt
-		);
-	}
-
-
-
-	/**
-	 * Return the identity card of the caller of this method.
-	 */
-	function getOwnCard() checkSenderIsRegistered public view
-	returns(
-		uint,
-		string,
-		bytes32,
-		address,
-		uint,
-		uint
-	) {
-		uint id = usersIdCards[msg.sender];
-
-		return getCardById(id);
-	}
+    	return (
+    		id,
+    		i.name,
+    		i.cardNumber,
+    		i.walletAddress,
+    		i.createdAt,
+    		i.updatedAt
+    	);
+    }
 
 
 
-	/**
-	 * Check if the user that is calling the smart contract has registered his identity card.
-	 */
-	function isRegistered() public view returns (bool)
-	{
-		return (usersIdCards[msg.sender] != 0);
-	}
+    /**
+     * Return the identity card of the caller of this method.
+     */
+    function getOwnCard() checkSenderIsRegistered public view
+    returns(
+    	uint,
+    	string,
+    	bytes32,
+    	address,
+    	uint,
+    	uint
+    ) {
+    	uint id = usersIdCards[msg.sender];
+
+    	return getCardById(id);
+    }
+
+
+
+    /**
+     * Check if the user that is calling the smart contract has registered his identity card.
+     */
+    function isRegistered() public view returns (bool)
+    {
+    	return (usersIdCards[msg.sender] != 0);
+    }
 
 
 
