@@ -3,7 +3,7 @@ pragma solidity ^0.4.21;
 
 
 contract IdentityCards {
-
+    // data structure that stores the identity card
     struct IdCard {
         string name;
         bytes32 cardNumber;
@@ -12,9 +12,9 @@ contract IdentityCards {
         uint updatedAt;
     }
 
-    // it maps the user wallet address with the ID card
+    // it maps the account address with the ID of the identity card
     mapping (address => uint) public usersIdCards;
-    // Identity card list where the array key is the id of the user
+    // Array of identity cards where the key is the ID of the card
     IdCard[] public idCards;
 
     // event fired when an user registers a new identity card
@@ -37,9 +37,10 @@ contract IdentityCards {
      * Constructor function
      */
     function IdentityCards() public {
-        addCard(0x0, "", ""); // NOTE: the first card MUST be emtpy
+        // NOTE: the first card MUST be emtpy
+        addCard(0x0, "", "");
 
-        /* Some dummy data */
+        // Some dummy data
         addCard(0x333333333333, "Leo Brown", "ABT9999999999999");
         addCard(0x111111111111, "John Doe", "ABC1111111111111");
         addCard(0x222222222222, "Mary Smith", "ABX3333333333333");
@@ -48,7 +49,7 @@ contract IdentityCards {
 
 
     /**
-     * Allow a user to register itself.
+     * Allow a user to register an identity card.
      *
      * @param userName 		The name that will appear on the card
      * @param cardNumber	The identity card number
@@ -62,7 +63,8 @@ contract IdentityCards {
 
 
     /**
-     * Add a user with his information.
+     * Add an identity card. This function must be private because an user
+     * cannot insert someone else identity card.
      *
      * @param wAddr 		Address of the identity card to add
      * @param userName		Name of the owner of the identity card
@@ -71,14 +73,15 @@ contract IdentityCards {
     function addCard(address wAddr, string userName, bytes32 cardNumber) private
     returns(uint)
     {
+        // checking if the user has already registered a card
         uint userCardId = usersIdCards[wAddr];
-
-        // user' card ID must not exist
         require (userCardId == 0);
 
+        // associating the user wallet address with the new ID
         usersIdCards[wAddr] = idCards.length;
         uint newUserCardId = idCards.length++;
 
+        // storing the new card in the array of cards
         idCards[newUserCardId] = IdCard({
         	name: userName,
         	cardNumber: cardNumber,
@@ -87,6 +90,7 @@ contract IdentityCards {
         	updatedAt: now
         });
 
+        // emitting the event that a new card has been registered
         emit newCardRegistered(newUserCardId);
 
         return newUserCardId;
