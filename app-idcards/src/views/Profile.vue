@@ -8,7 +8,7 @@
                 <h3>Update your ID card</h3><hr>
 
                 <h4>
-                    Card ID: {{ cardId }}    
+                    Card ID: {{ cardId }}
                 </h4>
 
                 <div class="form-group">
@@ -145,7 +145,7 @@
             getInfoBc() {
                 window.bc.loadInfo().then(info => {
                     this.coinbase = info.coinbase
-                    this.balance = this.weiToEther( info.balance )
+                    this.balance = window.bc.weiToEther( info.balance )
                 })
             },
 

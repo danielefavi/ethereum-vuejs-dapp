@@ -15,7 +15,7 @@
 	                <input class="form-control" id="card-numner" placeholder="Enter your card number" type="text" name="card-number" v-model="cardNumber">
 	            </div>
 
-	            <button class="btn btn-primary" :disabled="disableSubmit" @click="performSubmit">Save</button>
+	            <button class="btn btn-primary" :disabled="disableSubmit" @click="performSubmit">Register</button>
                 <strong v-show="submitting">Submitting...</strong>
                 <strong v-show="errorSubmit" class="text-danger">Error occurred!</strong>
 
@@ -39,7 +39,7 @@
     	data() {
     		return {
     			name: '', // variable binded with the input field: name
-    			cardNumber: '', // variable binded with the input field: card number 
+    			cardNumber: '', // variable binded with the input field: card number
                 submitting: false, // true once the submit button is pressed
                 successMessage: false, // true when the user has been registered successfully
 
@@ -126,7 +126,7 @@
              *        once the connection with the blockchain is established.
              *      - the function redirectWhenBlockMined stop checking when the card has been
              *        registered.
-             * 
+             *
              * NOTE: in order to check if the user has been registered successfully the function has to check
              * several time because the block can take several minutes in order to be mined (depending on the
              * configuration of the blockchain you are using).

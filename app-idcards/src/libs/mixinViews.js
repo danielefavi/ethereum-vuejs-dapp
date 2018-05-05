@@ -13,8 +13,9 @@ let mixinViews = {
         // is instatiated.
         if (window.bc == undefined) {
             window.bc = new BcExplorer
-            
-            window.bc.initContract(IdentityCardsContract)
+
+            // connecting to the blockchain and intializing the IdentityCards smart contract
+            window.bc.initWithContract(IdentityCardsContract, 'http://127.0.0.1:7545')
         }
     },
 
@@ -32,8 +33,8 @@ let mixinViews = {
         /**
          * Transform the parameter from bytes to string.
          */
-        toAscii(bytes) {
-            return window.bc.web3().toAscii(bytes).replace(/\u0000/g, '')
+        toAscii(bytesStr) {
+            return window.bc.toAscii(bytesStr)
         },
 
         /**
@@ -41,17 +42,6 @@ let mixinViews = {
          */
         toDate(timestamp) {
             return new Date(timestamp * 1000).toISOString()
-        },
-
-        /**
-         * Tranform the balance from Wei to Ether
-         */
-        weiToEther(bal) {
-            if (typeof bal == 'object') {
-                bal = bal.toNumber();
-            }
-
-            return window.bc.web3().fromWei(bal, "ether");
         }
     }
 }
