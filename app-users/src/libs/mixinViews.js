@@ -1,5 +1,5 @@
 import BcExplorer from './BcExplorer'
-import IdentityCardsContract from '../assets/IdentityCardsContract.json';
+import UsersContract from '../assets/UsersContract.json';
 
 let mixinViews = {
     data() {
@@ -14,8 +14,8 @@ let mixinViews = {
         if (window.bc == undefined) {
             window.bc = new BcExplorer
 
-            // connecting to the blockchain and intializing the IdentityCards smart contract
-            window.bc.initWithContract(IdentityCardsContract, 'http://127.0.0.1:7545')
+            // connecting to the blockchain and intializing the Users smart contract
+            window.bc.initWithContractJson(UsersContract, 'http://127.0.0.1:7545')
         }
     },
 

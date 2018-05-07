@@ -5,20 +5,20 @@
 
         <div class="row">
             <div class="col-md-3">
-                <h3>Update your ID card</h3><hr>
+                <h3>Update your Profile</h3><hr>
 
                 <h4>
-                    Card ID: {{ cardId }}
+                    Your ID: {{ userId }}
                 </h4>
 
                 <div class="form-group">
                     <label for="description">Name</label>
-                    <input class="form-control" id="name" placeholder="Enter name" type="text" name="name" v-model="name">
+                    <input class="form-control" placeholder="Enter your name" type="text" v-model="userName">
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Card Number</label>
-                    <input class="form-control" id="card-numner" placeholder="Enter your card number" type="text" name="card-number" v-model="cardNumber">
+                    <label for="description">Status</label>
+                    <input class="form-control" placeholder="Update your status" type="text" v-model="userStatus">
                 </div>
 
                 <button class="btn btn-primary" :disabled="disableSubmit" @click="performSubmit">Save</button>
@@ -49,7 +49,7 @@
 
     /**
      * Profile view component: this component shows the user profile.
-     * In this page the user can update his own identity card only and
+     * In this page the user can update his own profile and he can
      * view other details like his wallet address and balance.
      */
     export default {
@@ -57,9 +57,9 @@
 
         data() {
             return {
-                name: '', // variable binded with the name's input field
-                cardNumber: '', // varialbe binded to the card-number's input filed
-                cardId: 0, // card number ID of the user
+                userName: '', // variable binded with the name's input field
+                userStatus: '', // varialbe binded to the status's input filed
+                userId: 0, // user ID from the blockchain
 
                 coinbase: '0x0', // address of the user
                 balance: 0, // balance of the user
@@ -74,46 +74,46 @@
 
         computed: {
             /**
-             * It disables the submit button when the the name or cardNumber are not filled
+             * It disables the submit button when the the userName or userStatus are not filled
              * or the submit button is pressed or the connection with the blockchin is
              * not established.
              */
             disableSubmit() {
-                return (!this.name.length || !this.cardNumber.length || this.submitting || !this.blockchainIsConnected())
+                return (!this.userName.length || !this.userStatus.length || this.submitting || !this.blockchainIsConnected())
             }
         },
 
         methods: {
 
             /**
-             * Get the identity card of the current user.
-             * This methos calls the function getOwnCard from the smart contract
-             * and it returns the identity card where:
-             *      card[0] => uint     card ID
-             *      card[1] => string   card owner name
-             *      card[2] => bytes32  card number
+             * Get the profile details of the user.
+             * This methos calls the function getOwnProfile from the smart contract
+             * and it returns the user details where:
+             *      userDet[0] => uint     user ID
+             *      userDet[1] => string   user's name
+             *      userDet[2] => bytes32  user's status
              */
-            getPersonalCard() {
-                window.bc.contract().getOwnCard((error, card) => {
-                    this.cardId = card[0].toNumber()
-                    this.name = card[1]
-                    // card[2] is bytes32 format so it has to be trasformed to stirng
-                    this.cardNumber = this.toAscii(card[2])
+            getProfile() {
+                window.bc.contract().getOwnProfile((error, userDet) => {
+                    this.userId = userDet[0].toNumber()
+                    this.userName = userDet[1]
+                    // userDet[2] is bytes32 format so it has to be trasformed to stirng
+                    this.userStatus = this.toAscii(userDet[2])
                 })
             },
 
             /**
-             * Updates the user's identity card when the button is pressed.
+             * Updates the user's details when the button is pressed.
              */
             performSubmit() {
                 this.submitting = true
                 this.errorSubmit = false;
                 this.successSave = false;
 
-                // calling the method updateCard from the smart contract
-                window.bc.contract().updateCard(
-                    this.name,
-                    this.cardNumber,
+                // calling the method updateUser from the smart contract
+                window.bc.contract().updateUser(
+                    this.userName,
+                    this.userStatus,
                     {
                         from: window.bc.web3().eth.coinbase,
                         gas: 800000
@@ -125,7 +125,7 @@
             },
 
             /**
-             * Handle the result of the response of updateCard.
+             * Handle the result of the response of updateUser.
              */
             handleSubmitResult(err, txHash) {
                 this.submitting = false
@@ -162,7 +162,7 @@
             },
 
             /**
-             * Load the user's info: identity card and general info
+             * Load the user's info: user name, status and general info
              */
             loadEverything() {
                 // checking if the user is registered
@@ -173,7 +173,7 @@
                     }
                     // if the user is registered it will load the profile page
                     else if (res) {
-                        this.getPersonalCard()
+                        this.getProfile()
                         this.getInfoBc()
                     }
 

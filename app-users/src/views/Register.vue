@@ -7,12 +7,12 @@
 
 	            <div class="form-group">
 	                <label for="description">Name</label>
-	                <input class="form-control" id="name" placeholder="Enter name" type="text" name="name" v-model="name">
+	                <input class="form-control" placeholder="Enter your name" type="text" v-model="userName">
 	            </div>
 
 	            <div class="form-group">
-	                <label for="description">Card Number</label>
-	                <input class="form-control" id="card-numner" placeholder="Enter your card number" type="text" name="card-number" v-model="cardNumber">
+	                <label for="description">Status</label>
+	                <input class="form-control" placeholder="Enter your status" type="text" v-model="userStatus">
 	            </div>
 
 	            <button class="btn btn-primary" :disabled="disableSubmit" @click="performSubmit">Register</button>
@@ -20,7 +20,7 @@
                 <strong v-show="errorSubmit" class="text-danger">Error occurred!</strong>
 
                 <p v-show="successMessage" class="text-success">
-                    Your card has been registerd.
+                    <strong>You've been registerd!</strong>
                     <br>
                     You will be redirected to the profile page <strong>once the block will be mined!</strong>
                 </p>
@@ -38,8 +38,8 @@
 
     	data() {
     		return {
-    			name: '', // variable binded with the input field: name
-    			cardNumber: '', // variable binded with the input field: card number
+    			userName: '', // variable binded with the input field: name
+    			userStatus: '', // variable binded with the input field: status
                 submitting: false, // true once the submit button is pressed
                 successMessage: false, // true when the user has been registered successfully
 
@@ -51,12 +51,12 @@
 
     	computed: {
             /**
-             * It disables the submit button when the the name or cardNumber are not filled
+             * It disables the submit button when the the name or userStatus are not filled
              * or the submit button is pressed or the connection with the blockchin is
              * not established.
              */
             disableSubmit() {
-                return (!this.name.length || !this.cardNumber.length || this.submitting || !this.blockchainIsConnected())
+                return (!this.userName.length || !this.userStatus.length || this.submitting || !this.blockchainIsConnected())
             }
         },
 
@@ -71,8 +71,8 @@
 
                 // calling the function registerUser of the smart contract
                 window.bc.contract().registerUser(
-                    this.name,
-                    this.cardNumber,
+                    this.userName,
+                    this.userStatus,
                     {
                         from: window.bc.web3().eth.coinbase,
                         gas: 800000
@@ -86,7 +86,7 @@
                             this.successMessage = true
 
                             // it emits a global event in order to update the top menu bar
-                            Event.$emit('cardregistered', txHash);
+                            Event.$emit('userregistered', txHash);
 
                             // the transaction was submitted and the user will be redirected to the
                             // profile page once the block will be mined
@@ -119,17 +119,14 @@
             },
 
             /**
-             * Check if the user is registered calling the function of the smart contract isRegistered.
-             * This function is used when the user registers his own identity card.
-             * The difference with the previous function is:
-             *      - the function redirectIfUserRegistered stop checking when the card has been registered
-             *        once the connection with the blockchain is established.
-             *      - the function redirectWhenBlockMined stop checking when the card has been
-             *        registered.
+             * Once the user submitted his registration this funciton checks every 1000 ms
+			 * if the registration is successfully. Once the user is registered he will be
+			 * redirected to the profile page.
              *
-             * NOTE: in order to check if the user has been registered successfully the function has to check
-             * several time because the block can take several minutes in order to be mined (depending on the
-             * configuration of the blockchain you are using).
+             * NOTE: in order to check if the user has been registered successfully the
+             * function has to check several time because the block can take several
+             * minutes to be mined (depending on the configuration of the blockchain you
+			 * are using).
              */
             redirectWhenBlockMined() {
                 this.tmoReg = setInterval(() => {

@@ -2,7 +2,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <ul class="navbar-nav">
             <router-link tag="li" class="nav-link" to="/" exact>
-                <a>Card List</a>
+                <a>Statuses</a>
             </router-link>
 
             <router-link tag="li" class="nav-link" to="/profile" exact v-show="userIsRegistered">
@@ -41,7 +41,7 @@
 
         methods: {
             /**
-             * It checks if the visiting user is regitered calling every 500ms the function isRegistered 
+             * It checks if the visiting user is regitered calling every 500ms the function isRegistered
              * from the smart contract until the connection with the smart contract is established.
              */
             checkUserIsRegistered() {
@@ -67,13 +67,13 @@
 
             /**
              * Check if the user is registered calling the function of the smart contract isRegistered.
-             * This function is used when the user register his own identity card.
+             * This function is used when the user is signing up.
              * The difference with the previous function is:
-             *      - the function checkUserIsRegistered stop checking when the card has been registered
-             *        once the connection with the blockchain is established.
-             *      - the function checkUntilUserIsRegistered stop checking when the card has been
-             *        registered.
-             * 
+             *      - the function checkUserIsRegistered tries to check if the user is registered
+             *        until the connection with the blockchain is established.
+             *      - the function checkUntilUserIsRegistered tries to check if the user is registered
+             *        until the user is registered.
+             *
              * NOTE: in order to check if the user has been registered successfully the function has to check
              * several time because the block can take several minutes in order to be mined (depending on the
              * configuration of the blockchain you are using).
@@ -98,14 +98,14 @@
         },
 
         created() {
-            // when the event cardregistered is fired (from the view Register.vue)
+            // when the event userregistered is fired (from the view Register.vue)
             // it runs the function checkUntilUserIsRegistered
-            Event.$on('cardregistered', this.checkUntilUserIsRegistered);
+            Event.$on('userregistered', this.checkUntilUserIsRegistered);
 
             this.checkUserIsRegistered()
         }
     }
 </script>
- 
+
 <style>
 </style>

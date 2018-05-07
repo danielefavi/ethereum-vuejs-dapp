@@ -1,6 +1,5 @@
 import Web3 from 'web3'
 
-
 class BcExplorer {
 
     constructor() {
@@ -22,6 +21,7 @@ class BcExplorer {
     /**
      * Initialize the Web3 instance.
      *
+     * @param {string} addressUrl Provider address URL like http://127.0.0.1:7545
      * @return {Promise}
      */
     init(addressUrl) {
@@ -59,39 +59,46 @@ class BcExplorer {
 
 
     /**
-     * Initialize a contract.
-     * The settings parameter is the JSON of the smart contract settings that you can find in the
-     * folder /build/contracts/YourContract.json after the migration.
+     * Initialize a contract from the compiled JSON.
+     * The compiledJson parameter is the JSON of the smart contract settings
+     * that you can find in the folder /build/contracts/YourContract.json after
+     * the migration.
      *
-     * @param {Object} settings
-     * @param {string} contractName
+     * @param {Object} compiledJson compiled JSON from truffle
+     * @param {string} contractName contract name (required if you are initializing more then one contract)
      * @return {Promise}
      */
-    initContract(settings, contractName) {
-        var contractName = this.contractDefaultName(contractName)
+    initContractJson(compiledJson, contractName, networkId) {
+        var networkId = networkId || null
 
-        return this.getNetworkId()
-        .then(networkId => {
-            return this.initContractJson(networkId, settings, contractName)
-        })
+        // if the networkId is not provided it will find out
+        if (! networkId) {
+            return this.getNetworkId()
+            .then(networkId => {
+                return this.performInitContractJson(networkId, compiledJson, contractName)
+            })
+        }
+
+        return this.performInitContractJson(networkId, compiledJson, contractName)
     }
 
 
 
     /**
-     * Initialize web3 plus the contract.
-     * The settings parameter is the JSON of the smart contract settings that you can find in the
-     * folder /build/contracts/YourContract.json after the migration.
+     * Initialize Web3 and a contract.
+     * The compiledJson parameter is the JSON of the smart contract settings
+     * that you can find in the folder /build/contracts/YourContract.json after
+     * the migration.
      *
-     * @param {Object} settings
+     * @param {Object} compiledJson
      * @param {string} addressUrl
-     * @param {string} contractName
+     * @param {string} contractName contract name (required if you are initializing more then one contract)
      * @return {Promise}
      */
-    initWithContract(settings, addressUrl, contractName) {
+    initWithContractJson(compiledJson, addressUrl, contractName, networkId) {
         return this.init(addressUrl)
         .then(() => {
-            return this.initContract(settings, contractName)
+            return this.initContractJson(compiledJson, contractName, networkId)
         })
     }
 
@@ -171,24 +178,39 @@ class BcExplorer {
      * Initialize the smart contract.
      *
      * @param {number} networkId
-     * @param {object} settings Compiled JSON after the migration of the smart contract (file you find in /build/contract after smart contract migration)
+     * @param {object} compiledJson Truffle compiled JSON after the migration of the smart contract (file you find in /build/contract after smart contract migration)
      * @return void
      */
-    initContractJson(networkId, settings, contractName) {
-        if (typeof settings['abi'] == undefined) {
-            console.error('BcExplorer error: missing ABI in settings.')
+    performInitContractJson(networkId, compiledJson, contractName) {
+        if (typeof compiledJson['abi'] == undefined) {
+            console.error('BcExplorer error: missing ABI in the compiled Truffle JSON.')
             return
         }
 
-        var abiArray = settings['abi']
+        var abiArray = compiledJson['abi']
 
-        if ((typeof settings['networks'] == undefined) || (settings['networks'][networkId] == undefined)) {
-            console.error('BcExplorer error: missing networkId in settings.')
+        if ((typeof compiledJson['networks'] == undefined) || (compiledJson['networks'][networkId] == undefined)) {
+            console.error('BcExplorer error: missing networkId in the compiled Truffle JSON.')
             return
         }
 
-        var contractAddr = settings['networks'][networkId].address
+        var contractAddr = compiledJson['networks'][networkId].address
 
+        this.initContract(abiArray, contractAddr, contractName)
+    }
+
+
+
+    /**
+     * Initialize the smart contract.
+     *
+     * @param {object} abiArray ABI of the smart contract
+     * @param {string} contractAddr Smart contract address
+     * @param {string} contractName contract name (required if you are initializing more then one contract)
+     * @return void
+     */
+    initContract(abiArray, contractAddr, contractName)
+    {
         var contractName = this.contractDefaultName(contractName)
 
         this.contractInst[contractName] = this.web3().eth.contract(abiArray).at(contractAddr)
@@ -349,6 +371,7 @@ class BcExplorer {
     }
 
 
+
     /**
      * Return the string 'default' if the contract name is empty.
      *
@@ -363,43 +386,7 @@ class BcExplorer {
         return contractName
     }
 
-    /* ********************************************* */
-    /* ********************************************* */
-    /* ********************************************* */
 
-
-    /**
-     * Get all identity cards.
-     *
-     * @param {function} callback
-     * @return void
-     */
-    getAllCards(callback) {
-        if (! this.isConnected()) {
-            console.error('BcExplorer error: not connected.')
-            return;
-        }
-
-        // getting the total number of the identity cards stored in the blockchain
-        // calling the method totalIdCards from the smart contract
-        this.contract().totalIdCards.call((err, total) => {
-            var tot = 0
-            if (total) tot = total.toNumber()
-
-            if (tot > 0) {
-                // getting the card one by one
-                for (var i=1; i<tot; i++) {
-
-                    this.contract().getCardById.call(i, (error, card) => {
-                        callback(card)
-                    })
-
-                } // end for
-            } // end if
-
-        }) // end totalIdCards call
-    }
 }
-
 
 export default BcExplorer;
