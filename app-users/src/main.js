@@ -4,11 +4,9 @@ import Vue from 'vue'
 import App from './App'
 import router from './routes'
 
+window.Event = new Vue(); // global event
 
-window.Vue = Vue;
-window.Event = new Vue() // global event
-
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
 new Vue({
