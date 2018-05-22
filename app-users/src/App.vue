@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div class="container">
         <top-menu></top-menu>
 
         <div class="main-content">
@@ -13,11 +13,11 @@
 
     export default {
         components: { TopMenu },
-        
+
         name: 'App'
     }
 </script>
- 
+
 <style>
     .main-content {
         padding:20px 40px;
