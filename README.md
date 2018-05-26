@@ -36,11 +36,13 @@ $ npm install
 ```sh
 $ npm run dev
 ```
-If everything went fine you should see this message:
+If everything went fine you should see a message similar to:
 ```sh
-Your application is running here: http://localhost:8080
+DONE  Compiled successfully in 5166ms           15:54:53
+ 
+ Your application is running here: http://localhost:8080
 ```
-8) Open the browser and go to URL above to try the DApp!
+8) Open the browser, go to the URL shown by your terminal and play with the DApp!
 
 **NOTE:** if you want to try to add more user profiles you have to install metamask in your browser, then import the accounts into metamask and finally change account on metamask in order to register a new user.
 
