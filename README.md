@@ -36,11 +36,11 @@ $ npm install
 ```sh
 $ npm run dev
 ```
-If everything went fine you should see a message similar to:
+If everything went fine, the terminal will display a message similar to:
 ```sh
 DONE  Compiled successfully in 5166ms           15:54:53
- 
- Your application is running here: http://localhost:8080
+
+Your application is running here: http://localhost:8080
 ```
 8) Open the browser, go to the URL shown by your terminal and play with the DApp!
 
