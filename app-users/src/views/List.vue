@@ -1,8 +1,8 @@
 <template>
 	<div>
+		<button class="btn btn-primary float-right btn-top" @click="reloadList">Reload</button>
         <h1 class="title">User List</h1>
 
-        <button class="btn btn-primary float-right" @click="reloadList">Reload</button>
         <div class="clearfix"></div>
 
         <h2 v-show="!bcConnected">Not connect to the blockchain: please wait.</h2>
@@ -120,5 +120,7 @@
 </script>
 
 <style>
-
+	.btn-top {
+		margin-top: 10px;
+	}
 </style>
