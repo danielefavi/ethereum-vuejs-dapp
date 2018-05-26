@@ -5,6 +5,8 @@ let mixinViews = {
     data() {
         return {
             bcConnected: false, // true when the connection with the blockchain is established, plus the contract ABI + address is correctli initialized
+            bcConnectionError: false,
+            bcSmartContractAddressError: false
         }
     },
 
@@ -16,6 +18,31 @@ let mixinViews = {
 
             // connecting to the blockchain and intializing the Users smart contract
             window.bc.initWithContractJson(UsersContract, 'http://127.0.0.1:7545')
+            .then((error) => {
+                // handling the connection error
+                if (error) {
+                    this.bcConnectionError = true
+                    this.bcConnected = false
+                    console.log(error)
+                }
+                else {
+                    // calling a smart contract function in order to check the contract address
+                    // is correct. NOTE: here you might be connected successfully.
+                    // TODO: check if the address is valid is showuld be BcExplorer duty
+                    window.bc.contract().isRegistered.call((errorReg, res) => {
+                        if (errorReg) {
+                            this.bcConnectionError = true
+                            this.bcSmartContractAddressError = true
+                            console.log(errorReg)
+                        }
+                        else {
+                            this.bcConnectionError = false
+                        }
+
+                        this.bcConnected = this.blockchainIsConnected()
+                    })
+                }
+            })
         }
     },
 

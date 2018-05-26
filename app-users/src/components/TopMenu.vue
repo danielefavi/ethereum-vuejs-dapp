@@ -55,7 +55,7 @@
 
                         window.bc.contract().isRegistered.call((error, res) => {
                             if (error) {
-                                console.error(error)
+                                console.error(error);
                             }
                             else {
                                 this.userIsRegistered = res
