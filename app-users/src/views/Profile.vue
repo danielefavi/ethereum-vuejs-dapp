@@ -87,7 +87,7 @@
 
             /**
              * Get the profile details of the user.
-             * This methos calls the function getOwnProfile from the smart contract
+             * This methos calls the smart contract function getOwnProfile
              * and it returns the user details where:
              *      userDet[0] => uint     user ID
              *      userDet[1] => string   user's name

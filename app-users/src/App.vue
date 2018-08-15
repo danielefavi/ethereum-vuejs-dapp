@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div>
         <top-menu></top-menu>
 
         <h2 v-show="!bcConnected && !bcConnectionError">
@@ -24,7 +24,6 @@
                 <li>The smart contract compiled JSON (file: <b>assets/UsersContract.json</b>) is updated.</li>
             </ul>
         </div>
-
     </div>
 </template>
 

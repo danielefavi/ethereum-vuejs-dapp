@@ -125,8 +125,7 @@
              *
              * NOTE: in order to check if the user has been registered successfully the
              * function has to check several time because the block can take several
-             * minutes to be mined (depending on the configuration of the blockchain you
-			 * are using).
+             * minutes to be mined (depending on the the blockchain you are using).
              */
             redirectWhenBlockMined() {
                 this.tmoReg = setInterval(() => {
@@ -139,6 +138,7 @@
                                 // stopping the setInterval
                                 clearInterval(this.tmoReg)
 
+								// redirecting the user to the profile page
                                 this.$router.push("profile")
                             }
                         })

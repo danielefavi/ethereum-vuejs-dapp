@@ -83,7 +83,7 @@ class BcExplorer {
 
 
     /**
-     * Initialize a contract from the compiled JSON.
+     * Initialize a smart contract from the compiled JSON.
      * The compiledJson parameter is the JSON of the smart contract settings
      * that you can find in the folder /build/contracts/YourContract.json after
      * the migration.
@@ -112,7 +112,7 @@ class BcExplorer {
 
 
     /**
-     * Initialize Web3 and a contract.
+     * Initialize Web3 and a smart contract.
      * The compiledJson parameter is the JSON of the smart contract settings
      * that you can find in the folder /build/contracts/YourContract.json after
      * the migration.
