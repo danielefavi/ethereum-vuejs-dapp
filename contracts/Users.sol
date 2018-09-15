@@ -37,7 +37,8 @@ contract Users {
     /**
      * Constructor function
      */
-    function Users() public {
+    constructor() public
+    {
         // NOTE: the first user MUST be emtpy
         addUser(0x0, "", "");
 
@@ -52,13 +53,13 @@ contract Users {
     /**
      * Function to register a new user.
      *
-     * @param userName 		The displaying name
-     * @param status        The status of the user
+     * @param _userName 		The displaying name
+     * @param _status        The status of the user
      */
-    function registerUser(string userName, bytes32 status) public
+    function registerUser(string _userName, bytes32 _status) public
     returns(uint)
     {
-    	return addUser(msg.sender, userName, status);
+    	return addUser(msg.sender, _userName, _status);
     }
 
 
@@ -67,26 +68,26 @@ contract Users {
      * Add a new user. This function must be private because an user
      * cannot insert another user on behalf of someone else.
      *
-     * @param wAddr 		Address wallet of the user
-     * @param userName		Displaying name of the user
-     * @param status    	Status of the user
+     * @param _wAddr 		Address wallet of the user
+     * @param _userName		Displaying name of the user
+     * @param _status    	Status of the user
      */
-    function addUser(address wAddr, string userName, bytes32 status) private
+    function addUser(address _wAddr, string _userName, bytes32 _status) private
     returns(uint)
     {
         // checking if the user is already registered
-        uint userId = usersIds[wAddr];
+        uint userId = usersIds[_wAddr];
         require (userId == 0);
 
         // associating the user wallet address with the new ID
-        usersIds[wAddr] = users.length;
+        usersIds[_wAddr] = users.length;
         uint newUserId = users.length++;
 
         // storing the new user details
         users[newUserId] = User({
-        	name: userName,
-        	status: status,
-        	walletAddress: wAddr,
+        	name: _userName,
+        	status: _status,
+        	walletAddress: _wAddr,
         	createdAt: now,
         	updatedAt: now
         });
@@ -103,10 +104,10 @@ contract Users {
      * Update the user profile of the caller of this method.
      * Note: the user can modify only his own profile.
      *
-     * @param newUserName	The new user's displaying name
-     * @param newStatus 	The new user's status
+     * @param _newUserName	The new user's displaying name
+     * @param _newStatus 	The new user's status
      */
-    function updateUser(string newUserName, bytes32 newStatus) checkSenderIsRegistered public
+    function updateUser(string _newUserName, bytes32 _newStatus) checkSenderIsRegistered public
     returns(uint)
     {
     	// An user can modify only his own profile.
@@ -114,8 +115,8 @@ contract Users {
 
     	User storage user = users[userId];
 
-    	user.name = newUserName;
-    	user.status = newStatus;
+    	user.name = _newUserName;
+    	user.status = _newStatus;
     	user.updatedAt = now;
 
     	emit userUpdateEvent(userId);
@@ -128,9 +129,9 @@ contract Users {
     /**
      * Get the user's profile information.
      *
-     * @param id 	The ID of the user stored on the blockchain.
+     * @param _id 	The ID of the user stored on the blockchain.
      */
-    function getUserById(uint id) public view
+    function getUserById(uint _id) public view
     returns(
     	uint,
     	string,
@@ -140,12 +141,12 @@ contract Users {
     	uint
     ) {
     	// checking if the ID is valid
-    	require( (id > 0) || (id <= users.length) );
+    	require( (_id > 0) || (_id <= users.length) );
 
-    	User memory i = users[id];
+    	User memory i = users[_id];
 
     	return (
-    		id,
+    		_id,
     		i.name,
     		i.status,
     		i.walletAddress,
@@ -190,7 +191,7 @@ contract Users {
      */
     function totalUsers() public view returns (uint)
     {
-        return users.length;
+        return users.length - 1;
     }
 
 }

@@ -1,2 +1,3 @@
 /build
-/app-idcards/node_modules
+/app-users/node_modules
+/app-users/package-lock.json
