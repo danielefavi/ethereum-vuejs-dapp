@@ -27,7 +27,7 @@ $ truffle console --network ganache
 ```sh
 > migrate --reset --compile-all
 ```
-5) If the migration was successful, copy the content of the file **~/ethereum-vuejs-dapp/build/contracts/Users.json** into **~/ethereum-vuejs-dapp/app-users/src/assets/UsersContract.json**
+5) If the migration was successful, copy the file **~/ethereum-vuejs-dapp/build/contracts/Users.json** to **~/ethereum-vuejs-dapp/app-users/src/assets/Users.json**
 6) Open another terminal in the folder **~/ethereum-vuejs-dapp/app-users** and run the command:
 ```sh
 $ npm install
