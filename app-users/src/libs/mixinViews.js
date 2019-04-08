@@ -1,5 +1,5 @@
 import BcExplorer from './BcExplorer'
-import UsersContract from '../assets/UsersContract.json';
+import UsersContract from '../assets/Users.json';
 
 let mixinViews = {
     data() {

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.5.0;
 
 
 
@@ -40,12 +40,12 @@ contract Users {
     constructor() public
     {
         // NOTE: the first user MUST be emtpy
-        addUser(0x0, "", "");
+        addUser(address(0x0), "", "");
 
         // Some dummy data
-        addUser(0x333333333333, "Leo Brown", "Available");
-        addUser(0x111111111111, "John Doe", "Very happy");
-        addUser(0x222222222222, "Mary Smith", "Not in the mood today");
+        addUser(address(0x333333333333), "Leo Brown", "Available");
+        addUser(address(0x111111111111), "John Doe", "Very happy");
+        addUser(address(0x222222222222), "Mary Smith", "Not in the mood today");
     }
 
 
@@ -56,7 +56,7 @@ contract Users {
      * @param _userName 		The displaying name
      * @param _status        The status of the user
      */
-    function registerUser(string _userName, bytes32 _status) public
+    function registerUser(string memory _userName, bytes32 _status) public
     returns(uint)
     {
     	return addUser(msg.sender, _userName, _status);
@@ -72,7 +72,7 @@ contract Users {
      * @param _userName		Displaying name of the user
      * @param _status    	Status of the user
      */
-    function addUser(address _wAddr, string _userName, bytes32 _status) private
+    function addUser(address _wAddr, string memory  _userName, bytes32 _status) private
     returns(uint)
     {
         // checking if the user is already registered
@@ -107,7 +107,7 @@ contract Users {
      * @param _newUserName	The new user's displaying name
      * @param _newStatus 	The new user's status
      */
-    function updateUser(string _newUserName, bytes32 _newStatus) checkSenderIsRegistered public
+    function updateUser(string memory _newUserName, bytes32 _newStatus) checkSenderIsRegistered public
     returns(uint)
     {
     	// An user can modify only his own profile.
@@ -134,7 +134,7 @@ contract Users {
     function getUserById(uint _id) public view
     returns(
     	uint,
-    	string,
+    	string memory,
     	bytes32,
     	address,
     	uint,
@@ -163,7 +163,7 @@ contract Users {
     function getOwnProfile() checkSenderIsRegistered public view
     returns(
     	uint,
-    	string,
+    	string memory,
     	bytes32,
     	address,
     	uint,

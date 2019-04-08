@@ -21,7 +21,7 @@
             <ul>
                 <li>The blockchain is running.</li>
                 <li>The port in your settings (file: <b>libs/mixinViews.js</b>) match with the blockchain configuration.</li>
-                <li>The smart contract compiled JSON (file: <b>assets/UsersContract.json</b>) is updated.</li>
+                <li>The compiled smart contract <b>app-users/src/assets/Users.json</b> is equal to <b>build/Users.json</b>.</li>
             </ul>
         </div>
     </div>

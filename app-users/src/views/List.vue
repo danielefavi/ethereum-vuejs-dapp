@@ -96,7 +96,7 @@
 
 					if (tot > 0) {
 						// getting the user one by one
-						for (var i=1; i<tot; i++) {
+						for (var i=1; i<=tot; i++) {
 
 							window.bc.contract().getUserById.call(i, (error, userProfile) => {
 								callback(userProfile)
