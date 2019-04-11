@@ -39,7 +39,9 @@ contract Users {
      */
     constructor() public
     {
-        // NOTE: the first user MUST be emtpy
+        // NOTE: the first user MUST be emtpy: if you are trying to access to an element
+        // of the usersIds mapping that does not exist (like usersIds[0x12345]) you will
+        // receive 0, that's why in the first position (with index 0) must be initialized
         addUser(address(0x0), "", "");
 
         // Some dummy data
@@ -181,7 +183,7 @@ contract Users {
      */
     function isRegistered() public view returns (bool)
     {
-    	return (usersIds[msg.sender] != 0);
+    	return (usersIds[msg.sender] > 0);
     }
 
 
@@ -191,6 +193,8 @@ contract Users {
      */
     function totalUsers() public view returns (uint)
     {
+        // NOTE: the total registered user is length-1 because the user with
+        // index 0 is empty check the contructor: addUser(address(0x0), "", "");
         return users.length - 1;
     }
 

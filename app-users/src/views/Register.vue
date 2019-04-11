@@ -17,13 +17,20 @@
 
 	            <button class="btn btn-primary" :disabled="disableSubmit" @click="performSubmit">Register</button>
                 <strong v-show="submitting">Submitting...</strong>
-                <strong v-show="errorSubmit" class="text-danger">Error occurred!</strong>
 
-                <p v-show="successMessage" class="text-success">
+                <strong  class="text-danger"></strong>
+
+                <div v-show="errorStr" class="alert alert-danger mt-3" role="alert">
+                    {{ errorStr }}
+                    <br>
+                    <small>Check the browser console for more details.</small>
+                </div>
+
+                <div v-show="successMessage" class="alert alert-success mt-3" role="alert">
                     <strong>You've been registerd!</strong>
                     <br>
                     You will be redirected to the profile page <strong>once the block will be mined!</strong>
-                </p>
+                </div>
 			</div>
 		</div>
 	</div>
@@ -45,7 +52,7 @@
 
                 tmoConn: null, // contain the intervalID given by setInterval
                 tmoReg: null, // contain the intervalID given by setInterval
-                errorSubmit: false, // it shows the erro message
+                errorStr: null, // it shows the error message
     		}
     	},
 
@@ -56,66 +63,108 @@
              * not established.
              */
             disableSubmit() {
-                return (!this.userName.length || !this.userStatus.length || this.submitting || !this.blockchainIsConnected())
+                return (
+                    !this.userName.length ||
+                    !this.userStatus.length ||
+                    this.submitting ||
+                    !this.blockchainIsConnected()
+                );
             }
+        },
+
+        created() {
+            // it checks every 500ms if the user is registered until the connection is established
+            this.redirectIfUserRegistered();
         },
 
         methods: {
             /**
              * Perform the registration of the user when the submit button is pressed.
+             *
+             * @return {void}
              */
         	performSubmit() {
-                this.submitting = true
-                this.errorSubmit = false
-                this.successMessage = false
+                this.submitting = true;
+                this.errorStr = null;
+                this.successMessage = false;
 
-                // calling the function registerUser of the smart contract
+                window.bc.getMainAccount()
+                .then(address => this.performUserRegistration(address));
+        	},
+
+            /**
+             * Show the form error.
+             *
+             * @param {object} err
+             * @return {void}
+             */
+            showErrorMessage(err) {
+                console.error(err);
+
+                this.errorStr = null;
+
+                if (err) this.errorStr = err.toString();
+
+                if (! this.errorStr) this.errorStr = 'Error occurred!';
+            },
+
+            /**
+             * Perform the user registration cannling the smart contract
+             * function registerUser.
+             *
+             * @param {string} address
+             * @return {void}
+             */
+            performUserRegistration(address) {
                 window.bc.contract().registerUser(
                     this.userName,
                     this.userStatus,
                     {
-                        from: window.bc.web3().eth.coinbase,
+                        from: address,
                         gas: 800000
                     },
                     (err, txHash) => {
+                        this.submitting = false;
+
                         if (err) {
-                            console.error(err)
-                            this.errorSubmit = true
+                            this.showErrorMessage(err);
                         }
                         else {
-                            this.successMessage = true
+                            this.successMessage = true;
 
                             // it emits a global event in order to update the top menu bar
                             Event.$emit('userregistered', txHash);
 
                             // the transaction was submitted and the user will be redirected to the
                             // profile page once the block will be mined
-                            this.redirectWhenBlockMined()
+                            this.redirectWhenBlockMined();
                         }
                     }
                 )
-        	},
+            },
 
             /**
              * Check if the user visitng this page is registered: if the user is already
              * registered he will be redirected to the Profile page.
+             *
+             * @return {void}
              */
             redirectIfUserRegistered() {
                 this.tmoConn = setInterval(() => {
                     // checking first the connection
                     if (this.blockchainIsConnected()) {
                         // stopping the interval
-                        clearInterval(this.tmoConn)
+                        clearInterval(this.tmoConn);
 
                         // calling the smart contract
-                        window.bc.contract().isRegistered.call((error, res) => {
+                        this.isRegistered().then(res => {
                             if (res) {
                                 // redirecting to the profile page
-                                this.$router.push("profile")
+                                this.$router.push("profile");
                             }
-                        })
+                        });
                     }
-                }, 500)
+                }, 500);
             },
 
             /**
@@ -126,30 +175,26 @@
              * NOTE: in order to check if the user has been registered successfully the
              * function has to check several time because the block can take several
              * minutes to be mined (depending on the the blockchain you are using).
+             *
+             * @return {void}
              */
             redirectWhenBlockMined() {
                 this.tmoReg = setInterval(() => {
                     if (this.blockchainIsConnected()) {
-                        window.bc.contract().isRegistered.call((error, res) => {
-                            if (error) {
-                                console.error(error)
-                            }
-                            else if (res) {
+                        this.isRegistered()
+                        .then(res => {
+                            if (res) {
                                 // stopping the setInterval
-                                clearInterval(this.tmoReg)
+                                clearInterval(this.tmoReg);
 
 								// redirecting the user to the profile page
-                                this.$router.push("profile")
+                                this.$router.push("profile");
                             }
                         })
+                        .catch(error => this.showErrorMessage(error));
                     }
-                }, 1000)
+                }, 1000);
             }
-        },
-
-        created() {
-            // it checks every 500ms if the user is registered until the connection is established
-            this.redirectIfUserRegistered()
         }
     }
 </script>

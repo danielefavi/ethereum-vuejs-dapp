@@ -1,10 +1,10 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Profile from '@/views/Profile'
-import List from '@/views/List'
-import Register from '@/views/Register'
+import Vue from 'vue';
+import Router from 'vue-router';
+import Profile from '@/views/Profile';
+import List from '@/views/List';
+import Register from '@/views/Register';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
     routes: [
@@ -25,4 +25,4 @@ export default new Router({
         },
     ],
     linkActiveClass: 'active'
-})
+});

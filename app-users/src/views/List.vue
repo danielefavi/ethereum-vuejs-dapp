@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<button class="btn btn-primary float-right btn-top" @click="reloadList">Reload</button>
+		<button class="btn btn-primary float-right mt-2" @click="reloadList">Reload</button>
         <h1 class="title">User List</h1>
 
         <div class="clearfix"></div>
@@ -62,15 +62,15 @@
             getUserList() {
                 if (this.blockchainIsConnected()) {
                     // it shows the loading message
-                    this.isLoading = true
+                    this.isLoading = true;
 
                     // stopping the interval
-                    clearInterval(this.tmoConn)
+                    clearInterval(this.tmoConn);
 
                     // getting all the users from the blockchain
                     this.getAllUsers(userProfile => {
-                        this.isLoading = false
-                        this.users.push(userProfile)
+                        this.isLoading = false;
+                        this.users.push(userProfile);
                     })
                 }
             },
@@ -79,9 +79,9 @@
              * It reloads the user list.
              */
             reloadList() {
-                this.users = []
+                this.users = [];
 
-                this.getUserList()
+                this.getUserList();
             },
 
 			/**
@@ -90,37 +90,33 @@
 			getAllUsers(callback) {
 				// getting the total number of users stored in the blockchain
 				// calling the method totalUsers from the smart contract
-				window.bc.contract().totalUsers.call((err, total) => {
-					var tot = 0
-					if (total) tot = total.toNumber()
+				window.bc.contract().totalUsers((err, total) => {
+                    var tot = 0;
+					if (total) tot = total.toNumber();
 
 					if (tot > 0) {
 						// getting the user one by one
 						for (var i=1; i<=tot; i++) {
-
 							window.bc.contract().getUserById.call(i, (error, userProfile) => {
-								callback(userProfile)
-							})
-
+								callback(userProfile);
+							});
 						} // end for
 					} // end if
 
-				}) // end totalUsers call
+				}); // end totalUsers call
 			}
-        },
+
+        }, // end methods
 
         created() {
             // it tries to get the user list from the blockchian once
             // the connection is established
             this.tmoConn = setInterval(() => {
-                this.getUserList()
-            }, 1000)
+                this.getUserList();
+            }, 1000);
         }
     }
 </script>
 
 <style>
-	.btn-top {
-		margin-top: 10px;
-	}
 </style>

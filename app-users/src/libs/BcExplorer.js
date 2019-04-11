@@ -27,18 +27,19 @@ import Web3 from 'web3'
 class BcExplorer {
 
     constructor() {
-        this.web3inst = null // store the web3 instace
-        this.contractInst = [] // store the smart contract instance
+        this.web3inst = null; // store the web3 instace
+        this.contractInst = []; // store the smart contract instance
 
         // general info about connection and user information
         this.info = {
             isConnected: false,
             networkId: 0,
             coinbase: null,
+            mainAccount:null,
             balance: 0,
             addressUrl: null
-        }
-    }
+        };
+    };
 
 
 
@@ -51,33 +52,61 @@ class BcExplorer {
     init(addressUrl) {
         return new Promise((resolve, reject) => {
             // checking if the provider is already set by mist or metamask
-            if (typeof web3 !== 'undefined') {
-                web3 = new Web3(web3.currentProvider)
-            }
-
-            else {
-                if (typeof addressUrl == 'undefined') {
-                    reject( new Error('BcExplorer error: impossible to connect.') )
-                }
-
-                // set the provider you want from Web3.providers
-                var provider = new Web3.providers.HttpProvider(addressUrl)
+            if (window.ethereum) {
+                window.web3 = new Web3(ethereum);
 
                 try {
-                    web3 = new Web3(provider)
+                    // Request account access if needed
+                    ethereum.enable()
+                    .then(() => {
+                        this.setWeb3(window.web3, addressUrl);
+
+                        resolve(window.web3);
+                    })
+                    .catch(error => reject(error));
+                } catch (error) {
+                    reject(error);
                 }
-                catch (e) {
-                    // this is in case metamask/mist is off and avoid the exception web3 is not instatiated
-                    var web3 = new Web3(provider)
+            } else {
+                if (typeof web3 !== 'undefined') {
+                    var web3js = new Web3(web3.currentProvider);
+                } else {
+                    if (typeof addressUrl == 'undefined') {
+                        reject( new Error('BcExplorer error: impossible to connect.') );
+                    }
+
+                    // set the provider you want from Web3.providers
+                    var provider = new Web3.providers.HttpProvider(addressUrl);
+
+                    try {
+                        var web3js = new Web3(provider);
+                    } catch (e) {
+                        // this is in case metamask/mist is off and avoid the exception web3 is not instatiated
+                        var web3js = new Web3(provider);
+                    }
                 }
+
+                this.setWeb3(web3js, addressUrl);
+                resolve(web3js);
             }
-
-            this.info.addressUrl = addressUrl
-            this.info.isConnected = web3.isConnected() // setting the connection
-            this.web3inst = web3
-
-            resolve(web3)
         })
+    }
+
+
+
+    /**
+     * Set the Web3 instance and general information.
+     *
+     * @param {Object} web3js web3 instance
+     * @param {string} addressUrl Provider address URL like http://127.0.0.1:7545
+     * @return {void}
+     */
+    setWeb3(web3js, addressUrl) {
+        this.info.addressUrl = addressUrl;
+        this.info.isConnected = web3js.isConnected(); // setting the connection
+        this.web3inst = web3js;
+
+        this.loadInfo();
     }
 
 
@@ -93,20 +122,20 @@ class BcExplorer {
      * @return {Promise}
      */
     initContractJson(compiledJson, contractName, networkId) {
-        var networkId = networkId || null
+        var networkId = networkId || null;
 
         // if the networkId is not provided it will find out
         if (! networkId) {
             return this.getNetworkId()
             .then(networkId => {
-                return this.performInitContractJson(networkId, compiledJson, contractName)
+                return this.performInitContractJson(networkId, compiledJson, contractName);
             })
             .catch(error => {
                 return error;
             })
         }
 
-        return this.performInitContractJson(networkId, compiledJson, contractName)
+        return this.performInitContractJson(networkId, compiledJson, contractName);
     }
 
 
@@ -123,10 +152,11 @@ class BcExplorer {
      * @return {Promise}
      */
     initWithContractJson(compiledJson, addressUrl, contractName, networkId) {
-        return this.init(addressUrl)
-        .then(() => {
-            return this.initContractJson(compiledJson, contractName, networkId)
-        })
+        return new Promise((resolve, reject) => {
+            this.init(addressUrl)
+            .then(() => resolve( this.initContractJson(compiledJson, contractName, networkId) ))
+            .catch(error => reject(error));
+        });
     }
 
 
@@ -138,11 +168,9 @@ class BcExplorer {
      * @return mixed
      */
     getInfo(attr) {
-        if (attr) {
-            return this.info[attr]
-        }
+        if (attr) return this.info[attr];
 
-        return this.info
+        return this.info;
     }
 
 
@@ -155,11 +183,12 @@ class BcExplorer {
      * @return {object}
      */
     web3() {
-        if (typeof web3 !== 'undefined') return web3
+        if (typeof web3 !== 'undefined') return web3;
+        else if (typeof window.web3 !== 'undefined') return window.web3;
 
-        if (this.web3inst) return this.web3inst
+        if (this.web3inst) return this.web3inst;
 
-        console.error('BcExplorer error: Web3 is not initialized.')
+        console.error('BcExplorer error: Web3 is not initialized.');
     }
 
 
@@ -171,7 +200,7 @@ class BcExplorer {
      * @return {bool}
      */
     isConnected() {
-        return this.info.isConnected && this.countContracts()
+        return this.info.isConnected && this.countContracts();
     }
 
 
@@ -183,20 +212,20 @@ class BcExplorer {
      */
     contract(contractName) {
         if (this.countContracts() == 0) {
-            console.error('BcExplorer error: contract is not initialized.')
+            console.error('BcExplorer error: contract is not initialized.');
 
-            return
+            return;
         }
 
-        var contractName = this.contractDefaultName(contractName)
+        var contractName = this.contractDefaultName(contractName);
 
         if (typeof this.contractInst[contractName] == 'undefined') {
-            console.error('BcExplorer error: contract does not exist.')
+            console.error('BcExplorer error: contract does not exist.');
 
-            return
+            return;
         }
 
-        return this.contractInst[contractName]
+        return this.contractInst[contractName];
     }
 
 
@@ -210,21 +239,26 @@ class BcExplorer {
      */
     performInitContractJson(networkId, compiledJson, contractName) {
         if (typeof compiledJson['abi'] == undefined) {
-            console.error('BcExplorer error: missing ABI in the compiled Truffle JSON.')
-            return false
+            console.error('BcExplorer error: missing ABI in the compiled Truffle JSON.');
+            return false;
         }
 
-        var abiArray = compiledJson['abi']
+        var abiArray = compiledJson['abi'];
 
-        if ((typeof compiledJson['networks'] == undefined) || (compiledJson['networks'][networkId] == undefined)) {
-            console.error('BcExplorer error: missing networkId in the compiled Truffle JSON.')
-            return false
+        if (
+            (typeof compiledJson['networks'] == undefined) ||
+            (compiledJson['networks'][networkId] == undefined)
+        ) {
+            console.error('BcExplorer error: missing networkId in the compiled Truffle JSON.');
+
+            return false;
         }
-        var contractAddr = compiledJson['networks'][networkId].address
 
-        if (!this.web3().isAddress(contractAddr)) return false
+        var contractAddr = compiledJson['networks'][networkId].address;
 
-        this.initContract(abiArray, contractAddr, contractName)
+        if (!this.web3().isAddress(contractAddr)) return false;
+
+        this.initContract(abiArray, contractAddr, contractName);
     }
 
 
@@ -235,13 +269,13 @@ class BcExplorer {
      * @param {object} abiArray ABI of the smart contract
      * @param {string} contractAddr Smart contract address
      * @param {string} contractName contract name (required if you are initializing more then one contract)
-     * @return void
+     * @return {void}
      */
     initContract(abiArray, contractAddr, contractName)
     {
-        var contractName = this.contractDefaultName(contractName)
+        var contractName = this.contractDefaultName(contractName);
 
-        this.contractInst[contractName] = this.web3().eth.contract(abiArray).at(contractAddr)
+        this.contractInst[contractName] = this.web3().eth.contract(abiArray).at(contractAddr);
     }
 
 
@@ -255,15 +289,39 @@ class BcExplorer {
         return new Promise((resolve, reject) => {
             this.web3().version.getNetwork((error, networkId) => {
                 if (error) {
-                    console.error(error)
-                    reject(new Error('BcExplorer error: networkId not available.'))
-                } else {
-                    this.info.networkId = networkId
+                    console.error(error);
 
-                    resolve(networkId)
+                    reject(new Error('BcExplorer error: networkId not available.'));
+                } else {
+                    this.info.networkId = networkId;
+
+                    resolve(networkId);
                 }
-            })
-        })
+            });
+        });
+    }
+
+
+
+    /**
+     * Return the selected wallet address.
+     *
+     * @return {Promise}
+     */
+    getMainAccount() {
+        return new Promise((resolve, reject) => {
+            if (this.info.mainAccount) resolve(this.info.mainAccount);
+
+            this.web3().eth.getAccounts((error, accounts) => {
+                if (error) {
+                   reject(new Error('BcExplorer error: accounts not available.'))
+                } else {
+                    this.info.mainAccount = accounts[0];
+
+                    resolve(accounts[0]);
+                }
+            });
+        });
     }
 
 
@@ -275,16 +333,18 @@ class BcExplorer {
      */
     getCoinbase() {
         return new Promise((resolve, reject) => {
+            if (this.info.coinbase) resolve(this.info.coinbase);
+
             this.web3().eth.getCoinbase((error, coinbase) => {
                 if (error) {
                    reject(new Error('BcExplorer error: coinbase not available.'))
                 } else {
-                    this.info.coinbase = coinbase
+                    this.info.coinbase = coinbase;
 
-                    resolve(coinbase)
+                    resolve(coinbase);
                 }
-            })
-        })
+            });
+        });
     }
 
 
@@ -299,19 +359,19 @@ class BcExplorer {
         return new Promise((resolve, reject) => {
             this.web3().eth.getBalance(accountAddr, (error, balance) => {
                 if (error) {
-                    reject(new Error('BcExplorer error: impossible to get the balance for the account: ' + accountAddr))
+                    reject(new Error('BcExplorer error: impossible to get the balance for the account: ' + accountAddr));
                 } else {
                     if (balance && (typeof balance == 'object')) {
-                        var bal = balance.toNumber()
-                        this.info.balance = bal
+                        var bal = balance.toNumber();
+                        this.info.balance = bal;
 
-                        resolve( bal )
+                        resolve( bal );
                     }
 
-                    resolve(balance)
+                    resolve(balance);
                 }
-            })
-        })
+            });
+        });
     }
 
 
@@ -322,18 +382,17 @@ class BcExplorer {
      * @return {Promise}
      */
     loadInfo() {
-        return this.getCoinbase()
-        .then(coinbase => {
-            return this.getBalance(coinbase)
-        })
-        .then(balance => {
-            return this.getNetworkId()
-        })
-        .then(networkId => {
-            return new Promise((resolve, reject) => {
-                resolve(this.info)
-            })
-        })
+        return new Promise((resolve, reject) => {
+
+            this.getCoinbase().then(coinbase => {
+                this.getMainAccount().then(account => {
+                    this.getNetworkId().then(networkId => {
+                        resolve(this.info);
+                    }).catch(error => reject(error));
+                }).catch(error => reject(error));
+            }).catch(error => reject(error));
+
+        });
     }
 
 
@@ -350,10 +409,10 @@ class BcExplorer {
      */
     weiToEther(bal) {
         if (typeof bal == 'object') {
-            bal = bal.toNumber()
+            bal = bal.toNumber();
         }
 
-        return this.web3().fromWei(bal, "ether")
+        return this.web3().fromWei(bal, "ether");
     }
 
 
@@ -365,7 +424,7 @@ class BcExplorer {
      * @return {string}
      */
     toAscii(bytes) {
-        return this.web3().toAscii(bytes).replace(/\u0000/g, '')
+        return this.web3().toAscii(bytes).replace(/\u0000/g, '');
     }
 
 
@@ -377,7 +436,7 @@ class BcExplorer {
      * @return {string}
      */
     toDate(timestamp) {
-        return new Date(timestamp * 1000).toISOString()
+        return new Date(timestamp * 1000).toISOString();
     }
 
 
@@ -389,13 +448,13 @@ class BcExplorer {
      * @return {Number}
      */
     countContracts() {
-        var total = 0
+        var total = 0;
 
-        for (var key in this.contractInst){
-            if (this.contractInst.hasOwnProperty(key)) total++
+        for (var key in this.contractInst) {
+            if (this.contractInst.hasOwnProperty(key)) total++;
         }
 
-        return total
+        return total;
     }
 
 
@@ -407,11 +466,11 @@ class BcExplorer {
      * @return {string}
      */
     contractDefaultName(name) {
-        var contractName = name || 'default'
+        var contractName = name || 'default';
 
-        if (!contractName || !contractName.length) contractName = 'default'
+        if (!contractName || !contractName.length) contractName = 'default';
 
-        return contractName
+        return contractName;
     }
 
 

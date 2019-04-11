@@ -2,7 +2,6 @@
     <div>
         <h1 class="title">Profile</h1>
 
-
         <div class="row">
             <div class="col-md-3">
                 <h3>Update your Profile</h3><hr>
@@ -22,20 +21,28 @@
                 </div>
 
                 <button class="btn btn-primary" :disabled="disableSubmit" @click="performSubmit">Save</button>
-                <strong v-show="submitting">Submitting...</strong>
-                <strong v-show="errorSubmit" class="text-danger">Error occurred!</strong>
-                <strong v-show="successSave" class="text-success">Tx submitted!</strong>
+
+                <strong v-show="submitting" class="ml-2">Submitting...</strong>
+                <strong v-show="successSave" class="ml-2 text-success">Tx submitted!</strong>
             </div>
 
             <div class="col-md-3">
                 <h3>Info</h3><hr>
 
                 <p>
-                    <strong>Address</strong>: {{ coinbase }}
+                    <strong>Address</strong>: {{ userAddressAccount }}
                 </p>
                 <p>
                     <strong>Balance</strong>: {{ balance }} ETH
                 </p>
+            </div>
+        </div>
+
+        <div class="row" v-show="errorMessage">
+            <div class="col-md-6">
+                <div class="alert alert-danger mt-4">
+                    {{ errorMessage }}
+                </div>
             </div>
         </div>
 
@@ -61,14 +68,14 @@
                 userStatus: '', // varialbe binded to the status's input filed
                 userId: 0, // user ID from the blockchain
 
-                coinbase: '0x0', // address of the user
+                userAddressAccount: '0x0', // address of the user
                 balance: 0, // balance of the user
 
                 tmoConn: null, // contain the intervalID given by setInterval
 
                 submitting: false, // true when the submit is pressed
                 successSave: false, // it show the success message
-                errorSubmit: false, // it shows the erro message
+                errorMessage: null, // it shows the error message
             }
         },
 
@@ -79,12 +86,16 @@
              * not established.
              */
             disableSubmit() {
-                return (!this.userName.length || !this.userStatus.length || this.submitting || !this.blockchainIsConnected())
+                return (
+                    !this.userName.length ||
+                    !this.userStatus.length ||
+                    this.submitting ||
+                    !this.blockchainIsConnected()
+                );
             }
         },
 
         methods: {
-
             /**
              * Get the profile details of the user.
              * This methos calls the smart contract function getOwnProfile
@@ -92,94 +103,136 @@
              *      userDet[0] => uint     user ID
              *      userDet[1] => string   user's name
              *      userDet[2] => bytes32  user's status
+             *
+             * @return {void}
              */
             getProfile() {
-                window.bc.contract().getOwnProfile((error, userDet) => {
-                    this.userId = userDet[0].toNumber()
-                    this.userName = userDet[1]
-                    // userDet[2] is bytes32 format so it has to be trasformed to stirng
-                    this.userStatus = this.toAscii(userDet[2])
-                })
+                window.bc.getMainAccount().then(account => {
+                    window.bc.contract().getOwnProfile.call({ from: account },
+                        (error, userDet) => {
+                            if (userDet) {
+                                this.userId = userDet[0].toNumber();
+                                this.userName = userDet[1];
+                                // userDet[2] is bytes32 format so it has to be trasformed to stirng
+                                this.userStatus = this.toAscii(userDet[2]);
+                            }
+
+                            this.setErrorMessage(error);
+                        }
+                    );
+                });
+            },
+
+            /**
+             * Set the error message showing the alert.
+             *
+             * @param {object} error
+             * @return {void}
+             */
+            setErrorMessage(error) {
+                this.errorMessage = null;
+
+                if (error) {
+                    console.error(error);
+
+                    this.errorMessage = error.toString();
+
+                    if (! this.errorMessage.length) this.errorMessage = 'Error occurred!';
+                }
             },
 
             /**
              * Updates the user's details when the button is pressed.
+             *
+             * @return {void}
              */
             performSubmit() {
-                this.submitting = true
-                this.errorSubmit = false;
+                this.submitting = true;
+                this.errorMessage = null;
                 this.successSave = false;
 
                 // calling the method updateUser from the smart contract
-                window.bc.contract().updateUser(
-                    this.userName,
-                    this.userStatus,
-                    {
-                        from: window.bc.web3().eth.coinbase,
-                        gas: 800000
-                    },
-                    (err, txHash) => {
-                        this.handleSubmitResult(err, txHash)
-                    }
-                )
+                window.bc.getMainAccount()
+                .then(account => {
+                    window.bc.contract().updateUser(
+                        this.userName,
+                        this.userStatus,
+                        {
+                            from: account,
+                            gas: 800000
+                        },
+                        (err, txHash) => this.handleSubmitResult(err, txHash)
+                    )
+                })
+                .catch(error => this.setErrorMessage(error));
             },
 
             /**
              * Handle the result of the response of updateUser.
+             *
+             * @param {object} err
+             * @param {string} txHash
+             * @return {void}
              */
-            handleSubmitResult(err, txHash) {
-                this.submitting = false
-                if (err) {
-                    console.error(err)
-                    this.errorSubmit = true;
-                }
-                else if (txHash) {
-                    this.errorSubmit = false;
+            handleSubmitResult(error, txHash) {
+                this.submitting = false;
+
+                if (error) {
+                    this.setErrorMessage(error);
+                } else if (txHash) {
                     this.successSave = true;
                 }
             },
 
             /**
              * It loads the general info (address and balance of the user).
+             *
+             * @return {void}
              */
             getInfoBc() {
                 window.bc.loadInfo().then(info => {
-                    this.coinbase = info.coinbase
-                    this.balance = window.bc.weiToEther( info.balance )
-                })
+                    this.userAddressAccount = info.mainAccount;
+
+                    this.balance = window.bc.weiToEther( info.balance );
+                });
             },
 
             /**
-             * It loads the user information once connected to the blockchian
+             * It loads the user information once connected to the blockchian.
+             *
+             * @return {void}
              */
             checkConnectionAndLoad() {
                 if (this.blockchainIsConnected()) {
                     // stopping the interval
-                    clearInterval(this.tmoConn)
+                    clearInterval(this.tmoConn);
 
-                    this.loadEverything()
+                    this.loadEverything();
                 }
             },
 
             /**
-             * Load the user's info: user name, status and general info
+             * Load the user's info: user name, status and general info.
+             *
+             * @return {void}
              */
             loadEverything() {
                 // checking if the user is registered
-                window.bc.contract().isRegistered.call((error, res) => {
-                    if (error) {
-                        console.error(error)
-                        this.$router.push("register")
-                    }
+                this.isRegistered()
+                .then(res => {
                     // if the user is registered it will load the profile page
-                    else if (res) {
-                        this.getProfile()
-                        this.getInfoBc()
+                    if (res) {
+                        this.getProfile();
+                        this.getInfoBc();
                     }
 
                     // if the user not registered the user will be redirected to the Register page
-                    else this.$router.push("register")
+                    else this.$router.push("register");
                 })
+                .catch(error => {
+                    console.error(error);
+                    this.$router.push("register");
+                });
             }
         },
 
@@ -187,8 +240,8 @@
             // it will call the function checkConnectionAndLoad every 500ms
             // until the connection to the blockchain is enstablished
             this.tmoConn = setInterval(() => {
-                this.checkConnectionAndLoad()
-            }, 500)
+                this.checkConnectionAndLoad();
+            }, 500);
         }
     }
 </script>

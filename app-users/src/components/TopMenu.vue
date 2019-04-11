@@ -49,20 +49,16 @@
                     // checking first if the connection with the blockchain is established
                     if (this.blockchainIsConnected()) {
                         // stopping the setInterval
-                        clearInterval(this.tmoConn)
-                        // showing the connected message on the top bar and setting the class too
-                        this.connectedClass = 'text-success'
+                        clearInterval(this.tmoConn);
 
-                        window.bc.contract().isRegistered.call((error, res) => {
-                            if (error) {
-                                console.error(error);
-                            }
-                            else {
-                                this.userIsRegistered = res
-                            }
-                        })
+                        // showing the connected message on the top bar and setting the class too
+                        this.connectedClass = 'text-success';
+
+                        this.isRegistered()
+                        .then(res => this.userIsRegistered = res)
+                        .catch(error => console.log(error));
                     }
-                }, 500)
+                }, 500);
             },
 
             /**
@@ -81,19 +77,18 @@
             checkUntilUserIsRegistered() {
                 this.tmoReg = setInterval(() => {
                     if (this.blockchainIsConnected()) {
-                        window.bc.contract().isRegistered.call((error, res) => {
-                            if (error) {
-                                console.error(error)
-                            }
-                            else if (res) {
+                        this.isRegistered()
+                        .then((error, res) => {
+                            if (res) {
                                 // stopping the setInterval
-                                clearInterval(this.tmoReg)
+                                clearInterval(this.tmoReg);
 
-                                this.userIsRegistered = res
+                                this.userIsRegistered = res;
                             }
                         })
+                        .catch(error => console.log(error))
                     }
-                }, 1000)
+                }, 1000);
             }
         },
 
@@ -102,7 +97,7 @@
             // it runs the function checkUntilUserIsRegistered
             Event.$on('userregistered', this.checkUntilUserIsRegistered);
 
-            this.checkUserIsRegistered()
+            this.checkUserIsRegistered();
         }
     }
 </script>
