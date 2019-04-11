@@ -102,7 +102,6 @@
 							});
 						} // end for
 					} // end if
-
 				}); // end totalUsers call
 			}
 

@@ -33,7 +33,6 @@ export default {
                 .then((error) => {
                     // handling the connection error
                     if (error) {
-                        this.bcConnectionError = true;
                         this.bcConnected = false;
 
                         this.showConnectionErrorMessage(error);
@@ -47,13 +46,12 @@ export default {
                             this.bcConnected = this.blockchainIsConnected();
                         })
                         .catch(error => {
-                            this.showConnectionErrorMessage();
+                            this.showConnectionErrorMessage(error);
                             this.bcSmartContractAddressError = true;
-                            console.log(error);
                         });
                     }
                 })
-                .catch(err => this.showConnectionErrorMessage(err));
+                .catch(error => this.showConnectionErrorMessage(error));
             } // end if (window.bc == undefined)
         },
 
@@ -84,6 +82,8 @@ export default {
          */
         showConnectionErrorMessage(error=null) {
             this.bcConnectionError = true;
+
+            if (error) console.log(error);
 
             if (error && error.message) {
                 this.errorConnectionMessage = error.message;
