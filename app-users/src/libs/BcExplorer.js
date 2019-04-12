@@ -381,18 +381,32 @@ class BcExplorer {
      *
      * @return {Promise}
      */
-    loadInfo() {
-        return new Promise((resolve, reject) => {
+    async loadInfo() {
+        try {
+            var coinbase = await this.getCoinbase();
+            var mainAccount = await this.getMainAccount();
+            var balance = await this.getBalance(mainAccount);
+            var networkId = await this.getNetworkId();
 
-            this.getCoinbase().then(coinbase => {
-                this.getMainAccount().then(account => {
-                    this.getNetworkId().then(networkId => {
-                        resolve(this.info);
-                    }).catch(error => reject(error));
-                }).catch(error => reject(error));
-            }).catch(error => reject(error));
+            return Promise.resolve(this.info);
+        } catch (e) {
+            return Promise.reject(e);
+        }
 
-        });
+        // Nested promises: the following piece of code does the same the
+        // previous block.
+        //
+        // return new Promise((resolve, reject) => {
+        //     this.getCoinbase().then(coinbase => {
+        //         this.getMainAccount().then(account => {
+        //             this.getBalance(account).then(balance => {
+        //                 this.getNetworkId().then(networkId => {
+        //                     resolve(this.info);
+        //                 }).catch(error => reject(error));
+        //             }).catch(error => reject(error));
+        //         }).catch(error => reject(error));
+        //     }).catch(error => reject(error));
+        // });
     }
 
 
